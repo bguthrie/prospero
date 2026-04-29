@@ -5,7 +5,7 @@ description: Scaffold .prospero/ in the current project. Detect the host CMS, pr
 
 # Init
 
-Set up Prospero in the current project. Idempotent: safe to re-run for reconfiguration. Never overwrites a populated `.prospero/voice.md` or `.prospero/audience.md`.
+Set up Prospero in the current project. Idempotent: safe to re-run for reconfiguration. Never overwrites user-modified content in `.prospero/voice.md` or `.prospero/audience.md`. A file whose contents are byte-identical to the plugin's template is treated as an unfilled scaffold and is safe to recopy.
 
 ## When to use
 
@@ -16,7 +16,7 @@ Do not invoke any other phase skill from here. Scaffold, confirm, report. Then r
 
 ## Process
 
-You MUST complete each step in order. Do not write any files before the user has confirmed at step 3.
+You MUST complete each step in order. Do not write any files before the user has confirmed at step 4.
 
 ### 1. Scan for CMS markers
 
@@ -31,50 +31,48 @@ Also note whether the implied content directory exists (`content/post/` for Hugo
 
 If two CMS markers appear to be present (e.g., a Hugo `hugo.toml` and a Jekyll `_config.yml`), do not guess. Ask the user which is canonical.
 
-### 2. Propose a preset
+### 2. Inspect existing `.prospero/` files
 
-Read the preset file at `<plugin-root>/presets/<cms>.toml` so the proposal is concrete. Show the user:
+Before proposing anything, classify the state of each target path so the proposal at step 3 can be accurate. For each of `.prospero/config.toml`, `.prospero/voice.md`, `.prospero/audience.md`, classify as one of:
+
+- **Missing** — the file does not exist.
+- **Unchanged scaffold** — the file exists and its contents are **byte-for-byte equal** to the plugin's corresponding template.
+- **User content** — the file exists and its contents differ from the template (even by a single added newline or trailing space).
+
+**Fingerprint algorithm (MUST be byte-for-byte):**
+
+Compute byte-for-byte equality between the existing file and the plugin's template at `<plugin-root>/templates/voice.md` (for `.prospero/voice.md`) and `<plugin-root>/templates/audience.md` (for `.prospero/audience.md`). Equal → unchanged scaffold, safe to recopy. Not equal, even a single added newline or differing byte → user content, must not be overwritten without explicit permission.
+
+`.prospero/config.toml` has no template to compare against; classify it as **Missing** or **Exists** only. For the **Exists** case, compute a unified diff between the current file and the config you intend to write so you can show it at step 3.
+
+Record the classification for each file. Step 3's proposal depends on it.
+
+### 3. Propose
+
+Read the preset file at `<plugin-root>/presets/<cms>.toml` so the proposal is concrete. Show the user, in order:
 
 - The preset name you chose and the signal that led to it (e.g., "I see `hugo.toml` with a `baseURL` key").
-- The resolved **post path pattern** from the preset's `post_path_pattern`, with `{slug}` left literal so they can see the shape (e.g., `content/post/{slug}/index.md`).
+- The resolved **post path pattern** from the preset's `post_path_pattern`, with `{slug}` left literal (e.g., `content/post/{slug}/index.md`).
 - The resolved **drafts directory** (`drafts_dir`).
 - The **sample posts directory** (`sample_posts_dir`) that the author skill will read for voice calibration, and whether it currently exists.
 
-Then ask one question: "Accept this preset, pick a different one (plain/hugo/jekyll/ghost), or override specific fields?"
+Then enumerate the **actions** you will take, one per target file, based on step 2's classifications:
 
-### 3. Confirmation gate
+- For each file classified **Missing** → "Create `.prospero/<file>`."
+- For each file classified **Unchanged scaffold** → "Recopy `.prospero/<file>` from the plugin template (current file is the unmodified scaffold)."
+- For each file classified **User content** → "Skip `.prospero/<file>` (contains your edits; will not be overwritten)."
+- For `.prospero/config.toml` classified **Exists** → "Replace `.prospero/config.toml`. Diff:" followed by the unified diff computed in step 2.
+- For `.prospero/config.toml` classified **Missing** → "Create `.prospero/config.toml` with:" followed by the exact content.
 
-Before writing anything, show the user the full list of files you intend to create and wait for explicit consent.
+Ask one question at the end of the proposal: "Accept this plan, change the preset, override specific fields, or abort?"
 
-Template:
+### 4. Confirmation gate
 
-> I will create:
-> - `.prospero/config.toml` with `preset = "<name>"` [and any overrides the user asked for]
-> - `.prospero/voice.md` (copied from the plugin template)
-> - `.prospero/audience.md` (copied from the plugin template)
->
-> Proceed? (yes/no)
+Before writing anything, the user must explicitly consent to the proposal from step 3. If the user says anything other than a clear affirmative, treat it as a request for changes: revise the proposal and re-show step 3's output. Do not proceed to step 5 without explicit consent.
 
-Only proceed after an affirmative answer. If the user says no or asks for changes, revise and re-show the plan.
+### 5. Write the scaffold per the confirmed plan
 
-### 4. Check for existing files (idempotency)
-
-Before writing, inspect `.prospero/` if it exists. For each target path, classify it:
-
-- **Missing** → write it.
-- **Exists but empty or contains only the unchanged template content** → overwrite (it's a scaffold the user never filled in).
-- **Exists with user content** → do NOT overwrite. Add it to a skip list reported at the end.
-
-The files that MUST be treated as user-authored once they exist:
-
-- `.prospero/voice.md`
-- `.prospero/audience.md`
-
-`.prospero/config.toml` may be regenerated when the user is running `/init` explicitly for reconfiguration, but only after showing the diff and asking for confirmation.
-
-### 5. Write the scaffold
-
-Create `.prospero/` if it does not exist, then write the files that survived the idempotency check.
+Create `.prospero/` if it does not exist, then execute exactly the actions the user approved at step 4. No deviation.
 
 **`.prospero/config.toml`** — minimal, one line:
 
@@ -82,15 +80,23 @@ Create `.prospero/` if it does not exist, then write the files that survived the
 preset = "<chosen preset name>"
 ```
 
-Add explicit override keys only if the user asked for them at step 2. Do not copy the preset's contents into the config; the preset is read from the plugin at runtime.
+Add explicit override keys only if the user asked for them at step 3. Do not copy the preset's contents into the config; the preset is read from the plugin at runtime.
 
 **`.prospero/voice.md`** — copy byte-for-byte from the plugin's `templates/voice.md`.
 
 **`.prospero/audience.md`** — copy byte-for-byte from the plugin's `templates/audience.md`.
 
+**Fresh-copy requests on user content.** If the user explicitly asked at step 3 for a fresh copy of a template file that step 2 classified as **User content**, do NOT delete the existing file. Rename it to a `.bak` sibling first, then write the fresh template. Collision handling for `.bak`:
+
+1. Try `<name>.bak` (e.g., `voice.md.bak`).
+2. If that path already exists, try `<name>.bak.2`.
+3. If that exists too, increment: `<name>.bak.3`, `<name>.bak.4`, and so on, until you find an unused name.
+
+Do not overwrite an existing `.bak` file, and do not append a timestamp. Tell the user the exact backup filename you used.
+
 ### 6. Report and hand off
 
-Tell the user what was written and what was skipped. Exact closing message:
+Tell the user what was written, what was skipped, and any backups created. Exact closing message template (omit sections that do not apply):
 
 > Setup complete.
 >
@@ -99,7 +105,11 @@ Tell the user what was written and what was skipped. Exact closing message:
 > - `.prospero/voice.md`
 > - `.prospero/audience.md`
 >
-> [If files were skipped, list them under "Skipped (already populated)".]
+> Skipped (already populated):
+> - `.prospero/<file>` — contains your edits
+>
+> Backed up:
+> - `.prospero/<file>` → `.prospero/<file>.bak[.N]`
 >
 > Before running `/interrogate`, fill in `.prospero/voice.md` and `.prospero/audience.md`. These are the one thing Prospero cannot write for you.
 
@@ -109,25 +119,27 @@ After the report, control returns to the invoking context — the user if `/init
 
 The plugin ships `templates/` inside its installed directory. Resolve it like this, in order:
 
-1. If the `CLAUDE_PLUGIN_ROOT` environment variable is set, use `$CLAUDE_PLUGIN_ROOT/templates/`.
-2. Otherwise, resolve relative to this SKILL.md's own path: the plugin root is two levels up (`skills/init/SKILL.md` → plugin root). Use `<plugin-root>/templates/`.
+1. If the `CLAUDE_PLUGIN_ROOT` environment variable is set, use `$CLAUDE_PLUGIN_ROOT` as the plugin root. Templates live at `$CLAUDE_PLUGIN_ROOT/templates/`.
+2. Otherwise, use `Glob` with the pattern `**/prospero/templates/voice.md` rooted at `~/.claude/plugins/`. If there is exactly one match, the plugin root is the parent of the matched `templates/` directory. If there are zero or multiple matches, ask the user for the plugin root path; do not guess.
 
-Verify the resolved path contains `voice.md` and `audience.md` before trying to copy. If it does not, halt with a message reporting the path you tried; do not guess at another location.
+Verify the resolved path contains both `voice.md` and `audience.md` by `Read`-ing each. If either is missing, halt with a clear message reporting the path you tried and asking the user to supply the correct plugin root.
 
 ## Files that must never be overwritten silently
 
-Once they exist in `.prospero/`, the following are user-authored and belong to the project, not the plugin:
+Once they exist in `.prospero/` with user content (see step 2's fingerprint algorithm), the following are user-authored and belong to the project, not the plugin:
 
 - `voice.md`
 - `audience.md`
 - Anything under `.prospero/types/` (user-provided piece-type overrides).
 
-If the user asked for a fresh copy of a template, rename the existing file (`voice.md.bak`) rather than deleting it, and tell them you did.
+Handling for these is specified in steps 2, 3, and 5. Do not act on them outside that process.
 
 ## Anti-patterns
 
-- Writing files before the confirmation gate.
+- Writing files before the user confirms at step 4.
 - Using regex or filename-only heuristics to detect the CMS. Read the files.
-- Overwriting a populated `voice.md` or `audience.md` without explicit permission.
+- Overwriting user-modified content in `voice.md` or `audience.md` without explicit permission. (Byte-identical-to-template files are unfilled scaffolds, not user-modified content, and may be recopied.)
+- Fuzzy-matching the fingerprint check. The comparison is byte-for-byte; whitespace differences count.
 - Invoking `/interrogate` or any other phase skill from here. Init scaffolds and stops.
 - Copying the preset's contents into `.prospero/config.toml`. The config references the preset by name.
+- Deleting a user-content file during a fresh-copy request. Rename to `.bak[.N]` first.
