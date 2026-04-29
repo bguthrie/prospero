@@ -1,7 +1,7 @@
 {
   "name": "prospero",
   "description": "Dialectical blog-post pipeline: interrogate, critique, author, revise. CMS-agnostic; voice and audience are project-local.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Brian Guthrie"
   },

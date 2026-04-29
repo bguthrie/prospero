@@ -1,0 +1,21 @@
+{
+  "name": "prospero",
+  "description": "Marketplace hosting the Prospero blog-writing plugin",
+  "owner": {
+    "name": "Brian Guthrie"
+  },
+  "plugins": [
+    {
+      "name": "prospero",
+      "description": "Dialectical blog-post pipeline: interrogate, critique, author, revise. CMS-agnostic; voice and audience are project-local.",
+      "version": "0.1.1",
+      "source": "./",
+      "author": {
+        "name": "Brian Guthrie"
+      },
+      "homepage": "https://github.com/bguthrie/prospero",
+      "license": "MIT",
+      "keywords": ["blogging", "writing", "hugo", "jekyll", "skills"]
+    }
+  ]
+}
