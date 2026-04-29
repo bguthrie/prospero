@@ -1,0 +1,13 @@
+# Ghost preset. Skeleton; Ghost is API-driven, so this writes a local markdown staging file.
+# PRs welcome to add a Ghost Admin API export hook.
+posts_dir = "ghost-posts"
+post_path_pattern = "{posts_dir}/{slug}.md"
+drafts_dir = "drafts"
+sample_posts_dir = "ghost-posts"
+frontmatter_template = """---
+title: "{title}"
+slug: {slug}
+status: draft
+published_at: {date}
+tags: [{category}]
+---"""
