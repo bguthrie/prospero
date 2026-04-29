@@ -1,0 +1,14 @@
+# Hugo preset. Reference implementation; actively maintained.
+posts_dir = "content/post"
+post_path_pattern = "{posts_dir}/{slug}/index.md"
+drafts_dir = "drafts"
+sample_posts_dir = "content/post"
+frontmatter_template = """---
+title: "{title}"
+description: "{description}"
+date: {date}
+image:
+draft: true
+categories:
+  - {category}
+---"""
