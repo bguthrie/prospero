@@ -33,6 +33,8 @@ For each of `.prospero/voice.md` and `.prospero/audience.md`, compute byte-for-b
 - If either user file is **byte-for-byte equal** to its template → halt with: "`.prospero/<file>` is the unmodified scaffold. Fill it in before running `/author`; this is the one thing Prospero cannot write for you."
 - Otherwise → the file is user content. Proceed.
 
+Additionally, check that `.prospero/voice.md` is substantive, not a one-liner. If voice.md is shorter than ~500 characters or contains fewer than three concrete rules (prohibitions, structural conventions, tonal directives), halt with: "`.prospero/voice.md` is too sparse to calibrate reliable drafting. The author needs concrete rules to follow — otherwise this skill will improvise a voice. Expand voice.md with at least three rules (tone / structure / prohibitions), then re-run `/author`."
+
 ### 3. Resolve the preset keys
 
 Load `.prospero/config.toml` to get the preset name. Read the preset file at `<plugin-root>/presets/<preset>.toml` and extract all four of: `drafts_dir`, `post_path_pattern`, `sample_posts_dir`, `frontmatter_template`. Overlay any explicit overrides for these keys set directly in `.prospero/config.toml`. If no preset is named, default to `plain`.
@@ -47,6 +49,8 @@ The author consumes an existing outline, so the slug must come from the user or 
 - Otherwise, list subdirectories of `<drafts_dir>/`. If exactly one exists, confirm with the author before proceeding. If multiple exist, ask which post to draft.
 - If `<drafts_dir>/` is empty or does not exist, halt with: "No drafts found in `<drafts_dir>/`. Run `/interrogate` first."
 
+Once the slug is determined, confirm `<drafts_dir>/<slug>/outline.md` exists. If the directory exists but the outline does not, halt with: "No outline at `<drafts_dir>/<slug>/outline.md`. Run `/interrogate` to produce one before drafting."
+
 ## Before Writing
 
 1. **Check the date.** Verify today's date so you know what's current. Your training data may be stale; verify before assuming.
@@ -59,15 +63,22 @@ The author consumes an existing outline, so the slug must come from the user or 
 
 5. **Read the voice guide.** Read `.prospero/voice.md` in full. Follow every rule in it. That file is the canonical voice guide for this project; treat it as a hard contract, not a style suggestion.
 
-6. **Calibrate voice from samples.** Read at least 3 recent posts in the resolved `sample_posts_dir` to internalize rhythm, sentence structure, footnote usage, and section-header style. The voice.md rules and the sample posts together calibrate your output: the rules say what the voice is, the samples show what it sounds like.
+6. **Calibrate voice from samples.** Enumerate posts in the resolved `sample_posts_dir` (files matching the preset's post pattern). Then:
+   - **Zero samples** (fresh project, first post): note this to the author, proceed using voice.md alone as the sole calibration. Use ISO 8601 for the date and omit category (or use a single placeholder the user can correct) unless the author specifies otherwise.
+   - **One or two samples:** use all of them. Do not insist on three.
+   - **Three or more:** read the three with the most recent modification time (or, if the preset's date convention is clear, the three latest by frontmatter date).
 
-7. **Research.** Use the research sources listed in `.prospero/audience.md`'s Research Sources section. Do not invent sources outside that list; if you need broader web search, say so in the post's citations. Verify facts and locate links worth citing. Append any new findings to `<drafts_dir>/<slug>/research.md`. Do not fabricate URLs. If a claim cannot be substantiated, flag it for the author rather than inventing a source.
+   Internalize rhythm, sentence structure, footnote usage, and section-header style. **voice.md wins over samples if they conflict:** samples calibrate rhythm and texture, but voice.md is the specification. If voice.md forbids something the samples use (em dashes, staccato lists, etc.), follow voice.md. Samples help you pick between two choices both allowed by voice.md.
+
+   If samples use inconsistent date formats or category vocabularies, ask the author which to use rather than picking silently.
+
+7. **Research.** Use the research sources listed in `.prospero/audience.md`'s Research Sources section. Do not invent sources outside that list; if you need broader web search, say so in the post's citations. Verify facts and locate links worth citing. Append any new findings to `<drafts_dir>/<slug>/research.md` under a dated section header like `## Author session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing. Do not fabricate URLs. If a claim cannot be substantiated, flag it for the author rather than inventing a source.
 
 ## Output
 
 Resolve the destination path by substituting `{slug}` (and any other variables) into the preset's `post_path_pattern`. Write the post to that path.
 
-Apply the preset's `frontmatter_template` to the top of the file, substituting `{title}`, `{description}`, `{date}`, `{category}`, and any other variables the template names. Leave `draft: true` in the frontmatter (or the preset's equivalent flag) — the author does not unpublish.
+Apply the preset's `frontmatter_template` to the top of the file. For every `{variable}` literal that appears in the template, substitute the resolved value. Do not leave any `{variable}` in the output; do not add fields the template does not name. After writing, re-read the frontmatter and confirm no unsubstituted `{variable}` literals remain. Leave the draft flag marking the post as unpublished (`draft: true` in the hugo and plain presets; the preset's equivalent in others, inferable from the template's default value) — the author does not unpublish.
 
 - **Slug:** kebab-cased from the title, matching the `<drafts_dir>/<slug>/` directory the outline came from.
 - **Date:** use today's date (verified at step 1 of Before Writing) formatted to match what existing posts in `sample_posts_dir` use — read a sample to confirm the format before writing.
