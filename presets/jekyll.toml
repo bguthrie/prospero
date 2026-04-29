@@ -1,0 +1,12 @@
+# Jekyll preset. Skeleton; PRs welcome to refine.
+posts_dir = "_posts"
+post_path_pattern = "{posts_dir}/{date}-{slug}.md"
+drafts_dir = "_drafts"
+sample_posts_dir = "_posts"
+frontmatter_template = """---
+layout: post
+title: "{title}"
+date: {date}
+categories: [{category}]
+published: false
+---"""
