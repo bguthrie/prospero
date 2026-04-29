@@ -40,6 +40,14 @@ Load `.prospero/config.toml` to get the preset name. Read the preset file at `<p
 
 If `config.toml` is unparseable, the named preset file is missing, or the resolved preset lacks either field, halt with a message naming the specific failure and suggesting `/init` to reconfigure. Do not silently fall back.
 
+## Resolve the slug
+
+Critique consumes an existing artifact, so the slug must come from the user or the filesystem:
+
+- If the user named a file or slug directly, use it.
+- Otherwise, list subdirectories of `<drafts_dir>/`. If exactly one exists, confirm with the author before proceeding. If multiple exist, ask which post to critique.
+- If `<drafts_dir>/` is empty or does not exist, halt with: "No drafts found in `<drafts_dir>/`. Run `/interrogate` first."
+
 ## Mode determination
 
 Decide which mode to run based on the artifact the author has on hand:
@@ -49,9 +57,11 @@ Decide which mode to run based on the artifact the author has on hand:
 
 If the user named a specific file, use that file to disambiguate. If both artifacts exist and the user did not specify, ask which one to review. Do not review both in a single invocation.
 
+If neither artifact exists for the resolved slug, halt with: "No outline or draft found at `<drafts_dir>/<slug>/outline.md` or the resolved post path. Run `/interrogate` to produce an outline first."
+
 ## Process — outline mode
 
-First, determine the piece type. If the outline frontmatter or header records it, use that. Otherwise ask the user whether the piece is an **argued essay**, **opinion / polemic**, or **explainer** — the three rubrics bundled with the plugin.
+First, determine the piece type. If the outline explicitly names one, use that; otherwise ask the user whether the piece is an **argued essay**, **opinion / polemic**, or **explainer** — the three rubrics bundled with the plugin. (The bundled outline template does not record the piece type, so asking will be the common path.)
 
 Load the matching rubric from `<plugin-root>/templates/types/<type>.md`, where `<type>` is one of `argued-essay`, `opinion-polemic`, `explainer`. User overrides may live at `.prospero/types/<type>.md`; if such a file exists, prefer it over the bundled plugin template.
 
@@ -75,11 +85,11 @@ Do NOT pass the conversation history. Give the agent this prompt body (substitut
 > 3. The audience context at `.prospero/audience.md`. The target reader is defined there; do not flag missing explanations for concepts that audience already knows. The Research Sources section lists where to verify claims and survey prior art.
 > 4. If a research file exists at `{research_path}`, read it first so you don't duplicate work.
 >
-> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Search for prior art, contradicting evidence, and strong opposing voices. Do not invent sources not listed there.
+> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Search for prior art, contradicting evidence, and strong opposing voices. Do not invent sources not listed there. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique.
 >
 > Output a structured critique following the rubric's criteria. Be specific: "Section 3 claims X but provides no evidence" not "consider strengthening Section 3." End with a summary judgment: ready to draft, needs revision, or needs rethinking.
 >
-> Write your research findings (sources found, key quotes, URLs) to `{research_path}`, appending if the file already exists.
+> Write your research findings (sources found, key quotes, URLs) to `{research_path}`. If the file exists, append under a dated section header like `## Critique session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing.
 
 ## Process — draft mode
 
@@ -103,7 +113,7 @@ Do NOT pass the conversation history. Give the agent this prompt body:
 > 3. The audience context at `.prospero/audience.md`. The target reader is defined there; do not flag missing explanations for concepts that audience already knows. The Research Sources section lists where to verify claims.
 > 4. If a research file exists at `{research_path}`, read it to see what sources have already been found and check whether the draft actually uses them.
 >
-> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Verify any factual claims in the draft and check whether cited sources are real.
+> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Verify any factual claims in the draft and check whether cited sources are real. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique.
 >
 > Evaluate on these five criteria:
 >
@@ -115,7 +125,7 @@ Do NOT pass the conversation history. Give the agent this prompt body:
 >
 > For each criterion, give a rating (strong / adequate / weak) and a specific note. End with a summary judgment and a prioritized list of revisions.
 >
-> Write your research findings to `{research_path}`, appending if the file already exists.
+> Write your research findings to `{research_path}`. If the file exists, append under a dated section header like `## Critique session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing.
 
 ## Presenting findings
 
