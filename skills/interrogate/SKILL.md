@@ -21,13 +21,15 @@ Do NOT use for:
 
 You MUST complete these checks before asking any questions. Do not skip ahead.
 
+Run these as a silent preflight. Do not narrate them to the user unless a check fails; a passing preflight should be invisible.
+
 ### 1. `.prospero/config.toml` must exist
 
 If `.prospero/config.toml` does NOT exist in the current working directory, invoke the `prospero:init` skill and follow it to completion. When init returns, resume at step 2 below. Do not proceed to questioning with an unconfigured project.
 
 ### 2. `.prospero/voice.md` and `.prospero/audience.md` must be filled in
 
-For each of `.prospero/voice.md` and `.prospero/audience.md`, compute byte-for-byte equality against the plugin's corresponding template at `<plugin-root>/templates/voice.md` and `<plugin-root>/templates/audience.md`. Use the same plugin-root resolution rule the init skill uses: check `$CLAUDE_PLUGIN_ROOT` first; otherwise `Glob` for `**/prospero/templates/voice.md` under `~/.claude/plugins/`.
+For each of `.prospero/voice.md` and `.prospero/audience.md`, compute byte-for-byte equality against the plugin's corresponding template at `<plugin-root>/templates/voice.md` and `<plugin-root>/templates/audience.md`. Use the plugin-root resolution procedure defined in the `init` skill's "Resolving the plugin's templates directory" section. Do not abbreviate its failure handling: zero matches → ask the user; multiple matches → ask the user; match found but `voice.md` or `audience.md` missing → halt with the resolved path.
 
 - If either user file is **Missing** → halt with: "`.prospero/<file>` is missing. Run `/init` to restore it, then fill it in before `/interrogate`."
 - If either user file is **byte-for-byte equal** to its template → halt with: "`.prospero/<file>` is the unmodified scaffold. Fill it in before running `/interrogate`; this is the one thing Prospero cannot write for you."
@@ -36,6 +38,8 @@ For each of `.prospero/voice.md` and `.prospero/audience.md`, compute byte-for-b
 ### 3. Resolve the drafts directory
 
 Load `.prospero/config.toml` to get the preset name. Read the preset file at `<plugin-root>/presets/<preset>.toml` and extract `drafts_dir`. Overlay any explicit `drafts_dir` key set directly in `.prospero/config.toml`. If no preset is named, default to `plain`. The resolved value (typically `drafts` or `_drafts`) is where the outline will be written in the Artifact step.
+
+If `config.toml` is unparseable, the named preset file is missing, or the resolved preset lacks `drafts_dir`, halt with a message naming the specific failure and suggesting `/init` to reconfigure. Do not silently fall back.
 
 ### 4. Read `.prospero/audience.md` in full
 
@@ -64,11 +68,13 @@ Ask one question at a time. Do not batch. Focus on:
 
 Use web search proactively to find counterarguments, verify claims, and surface related work the author may want to engage with. The sources to consult are listed in `.prospero/audience.md`'s Research Sources section — use those first, then broader web as needed. Do not hardcode a source list of your own.
 
-Keep going until the author signals readiness. Do not move to outline production prematurely. A few signals that you are not ready yet: the thesis is still two sentences, the antithesis is a strawman, the "so what?" is hand-wavy, or the author is still discovering what they think.
+A few signals that you are not ready yet: the thesis is still two sentences, the antithesis is a strawman, the "so what?" is hand-wavy, or the author is still discovering what they think.
+
+Stop when either (a) the author explicitly says they're ready AND the thesis, antithesis, and "so what?" all pass the checks above, or (b) the author explicitly overrides your concerns (e.g. "I know, let's outline anyway"). In case (b), capture the unresolved concerns in the outline's Open Questions section — do not suppress them.
 
 ## Artifact
 
-When interrogation is complete, resolve the slug by kebab-casing the user's working title. Write the outline to `<drafts_dir>/<slug>/outline.md` (where `drafts_dir` came from step 3 of Preconditions) using this structure:
+When interrogation is complete, resolve the slug by kebab-casing the user's working title. If the author has not provided a working title, ask for one as the last question before writing. If `<drafts_dir>/<slug>/` already exists, show the author the existing outline path and ask whether to pick a different slug or overwrite. Write the outline to `<drafts_dir>/<slug>/outline.md` (where `drafts_dir` came from step 3 of Preconditions) using this structure:
 
 ~~~markdown
 # <Working Title>
