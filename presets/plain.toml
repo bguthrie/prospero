@@ -1,0 +1,10 @@
+# Default preset for non-CMS projects. Plain markdown with minimal frontmatter.
+posts_dir = "posts"
+post_path_pattern = "{posts_dir}/{slug}/index.md"
+drafts_dir = "drafts"
+sample_posts_dir = "posts"
+frontmatter_template = """---
+title: "{title}"
+date: {date}
+draft: true
+---"""
