@@ -36,7 +36,7 @@ Or install from this repository directly if you are developing against it.
    ```
 3. On first run in an unconfigured project, Prospero will invoke `/init` to scaffold `.prospero/config.toml`, `.prospero/voice.md`, and `.prospero/audience.md`. Fill in the voice and audience files with your own rules and reader description, then answer the interrogator's Socratic questions.
 
-The outline lands at `drafts/<slug>/outline.md`. From there you can `/critique` it, `/author` the draft, and `/revise` once you have edited the result.
+The outline lands at `drafts/<slug>/outline.md`, alongside a `research.md` that the pipeline accumulates across phases. From there: `/critique` the outline, `/author` the draft, then iterate with `/critique` (in draft mode) and `/revise` — typically several passes before publishing, not a single linear step.
 
 A worked example lives at [`examples/sample-post/`](examples/sample-post/). It shows the artifacts a single post produces at each stage. A bare Hugo project before and after running `/init` is at [`tests/fixtures/hugo/`](tests/fixtures/hugo/).
 
@@ -74,9 +74,9 @@ The interrogator asks which type you are writing as its first question; the choi
 
 ## Status
 
-v0.1, extracted from the tooling behind [brianguthrie.com](https://brianguthrie.com). The Hugo preset is what the author uses daily and is the best-tested path. The `plain` preset is adequate for most non-CMS projects. The `jekyll` and `ghost` presets are scaffolds that need someone who uses those platforms to shake them out.
+v0.2, extracted from the tooling behind [brianguthrie.com](https://brianguthrie.com). The Hugo preset is what the author uses and is the best-tested path. The `plain` preset is adequate for most non-CMS projects. The `jekyll` and `ghost` presets are scaffolds that need someone who uses those platforms to shake them out.
 
-Planned for v0.2: refinement of the Jekyll and Ghost presets, additional piece types, and better handling of multi-post series.
+Still on the roadmap: refinement of the Jekyll and Ghost presets, additional piece types, and better handling of multi-post series.
 
 ## License
 
