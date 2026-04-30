@@ -55,6 +55,12 @@ Ask the user which of the three piece types they are writing. This calibrates th
 2. **Opinion / polemic** — the user has something to say and the value is in saying it well. Critic review is lighter, focused on "is this interesting?" rather than "is this airtight?"
 3. **Explainer** — teaching the reader something they don't know. Critic focuses on clarity, accuracy, and whether the reader actually learns what was promised.
 
+### Second question: working title
+
+Ask the author for a working title. A rough version is fine — it does not need to be the final title, and a better one often emerges during questioning. You need something now to resolve the slug (by kebab-casing the title) so research notes can land on disk as the session progresses. If the title changes substantively later, the author can rename the `<drafts_dir>/<slug>/` directory; it is not a cost worth avoiding by deferring this question.
+
+Once the title is resolved, check whether `<drafts_dir>/<slug>/` already exists. If it contains an `outline.md`, show the author the path and ask whether to pick a different working title, overwrite the outline, or stop and resume the existing draft. If the directory exists but contains only `research.md` or is otherwise empty of an outline, proceed without prompting — research accumulates, nothing is overwritten.
+
 ### Socratic questioning
 
 Ask one question at a time. Do not batch. Focus on:
@@ -68,13 +74,15 @@ Ask one question at a time. Do not batch. Focus on:
 
 Use web search proactively to find counterarguments, verify claims, and surface related work the author may want to engage with. The sources to consult are listed in `.prospero/audience.md`'s Research Sources section — use those first, then broader web as needed. Do not hardcode a source list of your own.
 
+**Persist what you find.** Write sources, key quotes, and URLs to `<drafts_dir>/<slug>/research.md` as you go — the slug is already resolved from the Second question step. This is the first entry in the post's research record; downstream phases (`/critique`, `/author`) read it and build on it rather than re-running the same searches. Create the file if missing and append under a section header like `## Interrogation session YYYY-MM-DDTHH:MM` (local time, to the minute).
+
 A few signals that you are not ready yet: the thesis is still two sentences, the antithesis is a strawman, the "so what?" is hand-wavy, or the author is still discovering what they think.
 
 Stop when either (a) the author explicitly says they're ready AND the thesis, antithesis, and "so what?" all pass the checks above, or (b) the author explicitly overrides your concerns (e.g. "I know, let's outline anyway"). In case (b), capture the unresolved concerns in the outline's Open Questions section — do not suppress them.
 
 ## Artifact
 
-When interrogation is complete, resolve the slug by kebab-casing the user's working title. If the author has not provided a working title, ask for one as the last question before writing. If `<drafts_dir>/<slug>/` already exists, show the author the existing outline path and ask whether to pick a different slug or overwrite. Write the outline to `<drafts_dir>/<slug>/outline.md` (where `drafts_dir` came from step 3 of Preconditions) using this structure:
+When interrogation is complete, write the outline to `<drafts_dir>/<slug>/outline.md` using the slug resolved in the Second question step and `drafts_dir` from step 3 of Preconditions. Use this structure:
 
 ~~~markdown
 # <Working Title>

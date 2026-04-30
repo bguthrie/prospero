@@ -57,7 +57,7 @@ Once the slug is determined, confirm `<drafts_dir>/<slug>/outline.md` exists. If
 
 2. **Re-read the outline.** Read `<drafts_dir>/<slug>/outline.md` in full. The outline is a spine, not a transcript; you can reorder, merge, split, or restructure sections if the argument flows better. But do not silently drop claims or change the thesis. The thesis, antithesis, and synthesis must survive into the draft.
 
-3. **Read existing research.** If `<drafts_dir>/<slug>/research.md` exists, read it. The critic has already found sources, prior art, and counterarguments. Use them; don't re-fetch what's already there.
+3. **Read existing research.** `<drafts_dir>/<slug>/research.md` is the project's accumulating research record. Interrogation initializes it with sources turned up during questioning; critique passes add prior art and counterarguments; prior author sessions (on revision) add what went into the current draft. Read the whole file. You are the phase that turns this research into a draft — starting from what is already on file is the point.
 
 4. **Read the audience definition.** Read `.prospero/audience.md` for the target reader description and research sources. The audience definition informs tone calibration, how much background to supply, and what prior art to engage. Hold this context while drafting.
 
@@ -72,7 +72,7 @@ Once the slug is determined, confirm `<drafts_dir>/<slug>/outline.md` exists. If
 
    If samples use inconsistent date formats or category vocabularies, ask the author which to use rather than picking silently.
 
-7. **Research.** Use the research sources listed in `.prospero/audience.md`'s Research Sources section. Do not invent sources outside that list; if you need broader web search, say so in the post's citations. Verify facts and locate links worth citing. Append any new findings to `<drafts_dir>/<slug>/research.md` under a dated section header like `## Author session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing. Do not fabricate URLs. If a claim cannot be substantiated, flag it for the author rather than inventing a source.
+7. **Research — this is the primary research phase of the pipeline.** Interrogation and critique persist what they turned up; you are the phase that grounds the actual claims in the draft. Start from what is already in `research.md`. For every claim the draft makes, verify it against what is on file, then fill gaps: find the specific source you are going to cite, the specific quote or statistic you are going to use. Use the sources listed in `.prospero/audience.md`'s Research Sources section first; if you need broader web search, use it and note that in the post's citations. Append new findings to `<drafts_dir>/<slug>/research.md` under a section header like `## Author session YYYY-MM-DDTHH:MM` (local time, to the minute, so multiple same-day sessions do not collide). Do not overwrite existing content. Create the file if missing. Do not fabricate URLs. If a claim cannot be substantiated, flag it for the author rather than inventing a source.
 
 ## Output
 
@@ -107,4 +107,4 @@ Read `.prospero/voice.md` in full. Follow every rule in it. That file is the can
 
 ## Handoff
 
-After the draft is written, tell the author it's ready for their editing pass. When they come back with feedback, invoke `/revise`.
+After the draft is written, tell the author it's ready for their editing pass. When they come back, the typical flow is not a single revise round: authors cycle between `/critique` in draft mode (to stress-test execution) and `/revise` (to polish prose and tighten structure), often multiple times, before publishing. Route based on what the author asks for and expect the loop to repeat. If they do not specify, offer both and let them pick.

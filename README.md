@@ -10,10 +10,10 @@ Prospero is deliberately agnostic about where your blog lives. Voice, audience, 
 
 ## Pipeline overview
 
-1. **Interrogate** — Socratic questioning extracts the argumentative spine of the post: thesis, antithesis, synthesis, entry point, section-level claims and objections. Produces `drafts/<slug>/outline.md`.
-2. **Critique** — An independent oppositional reader challenges the outline. Runs its own web research, flags weak evidence and missing counterarguments. Can also run on a draft. Appends to `drafts/<slug>/research.md`.
-3. **Author** — Reads the outline, voice guide, audience, and sample posts. Does independent research to ground claims. Writes the post at the resolved path (e.g. `content/post/<slug>/index.md`).
-4. **Revise** — Collaborative line-level and structural feedback on a draft you have already edited. Can re-invoke the critic in draft mode.
+1. **Interrogate** — Socratic questioning extracts the argumentative spine of the post: thesis, antithesis, synthesis, entry point, section-level claims and objections. Produces `drafts/<slug>/outline.md` and initializes `drafts/<slug>/research.md` with sources the questioning turned up.
+2. **Critique** — An independent oppositional reader challenges the outline. Reads the existing `research.md` first and only runs new web searches for gaps it identifies; flags weak evidence and missing counterarguments. Can also run on a draft. Appends its findings to `research.md`.
+3. **Author** — The primary research phase. Reads the outline, existing research, voice guide, audience, and sample posts; grounds the draft's claims against what is already on file and fills specific gaps. Writes the post at the resolved path (e.g. `content/post/<slug>/index.md`).
+4. **Revise** — Collaborative line-level and structural feedback on a draft you have already edited. Can re-invoke the critic in draft mode; running `/critique` on the same draft multiple times across revise rounds is the expected path, not an exception.
 
 Each phase is its own slash command; a router skill (`prospero`) picks the right phase when you describe intent without naming one.
 

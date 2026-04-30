@@ -75,6 +75,8 @@ Refer to `.prospero/voice.md` for this project's voice rules. Flag violations of
 
 If the author asks for a formal review, or if you believe the draft has significant structural issues that warrant independent adversarial evaluation, offer to invoke `/critique` in draft mode. That skill spawns a separate agent that evaluates the draft against its outline without the context of your feedback — useful precisely because it is blind to your suggestions. Do not invoke `/critique` silently; offer, and let the author decide.
 
+A single draft is expected to go through `/critique` more than once. Each pass surfaces different issues as the previous round's problems get resolved, and draft-mode critique is cheap relative to the cost of publishing a flawed post. If the author has already run `/critique` on this draft, that is not a reason to skip offering another pass after a substantive revise round — offer it again.
+
 ## Handoff
 
 Return feedback to the author and stop. Do not auto-invoke any other skill. The author decides what to do with the feedback — apply it, dismiss it, come back for another round, or escalate to `/critique` in draft mode.

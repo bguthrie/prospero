@@ -38,7 +38,9 @@ Pick exactly one phase skill based on what the user has and what they are asking
 
 4. **Draft exists at the resolved post path and the user wants feedback on their edits → `/revise`.** Revise is collaborative line-level and structural feedback on a draft the user has already touched; it can also re-invoke `/critique` in draft mode.
 
-If the user's intent is ambiguous between two phases, ask one clarifying question and route on the answer. Do not run a phase speculatively.
+5. **Draft exists and the user wants adversarial review → `/critique` in draft mode.** This is how the pipeline stress-tests execution, not just the argument. Expect this route to be taken more than once over a single draft's lifecycle: authors typically cycle `/critique` ↔ revisions ↔ `/critique` across several passes before publishing. A second or third critique pass on the same draft is the normal case, not an exception — do not second-guess it or default to `/revise` just because the draft has already been critiqued once.
+
+If the user's intent is ambiguous between two phases, ask one clarifying question and route on the answer. Do not run a phase speculatively. The most common ambiguity after authoring is rule 4 vs. rule 5 — "review my draft" can mean either. When in doubt, ask whether the user wants an adversarial reading (`/critique`) or collaborative editing feedback (`/revise`).
 
 ## Init handoff
 

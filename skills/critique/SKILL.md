@@ -85,11 +85,11 @@ Do NOT pass the conversation history. Give the agent this prompt body (substitut
 > 3. The audience context at `.prospero/audience.md`. The target reader is defined there; do not flag missing explanations for concepts that audience already knows. The Research Sources section lists where to verify claims and survey prior art.
 > 4. If a research file exists at `{research_path}`, read it first so you don't duplicate work.
 >
-> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Search for prior art, contradicting evidence, and strong opposing voices. Do not invent sources not listed there. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique.
+> Read `{research_path}` first (if it exists) before running any web searches. Prior phases — interrogation, earlier critique passes — have already persisted research there; your first job is to assess whether it is sufficient for the outline's claims, not to duplicate it. Only run new web searches for specific gaps you have identified after reading what is on file. When you do search, use the sources listed in `.prospero/audience.md`'s Research Sources section first, then broader web; do not invent sources not listed there. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique. If the existing research already covers the ground for a given claim, say so and move on.
 >
 > Output a structured critique following the rubric's criteria. Be specific: "Section 3 claims X but provides no evidence" not "consider strengthening Section 3." End with a summary judgment: ready to draft, needs revision, or needs rethinking.
 >
-> Write your research findings (sources found, key quotes, URLs) to `{research_path}`. If the file exists, append under a dated section header like `## Critique session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing.
+> Append any new research findings (sources found, key quotes, URLs) to `{research_path}` under a section header like `## Critique session YYYY-MM-DDTHH:MM` (local time, to the minute, so multiple same-day passes do not collide). Do not overwrite existing content. Create the file if missing. If you did not do any new research — everything you needed was already on file — say so under the header rather than leaving it empty.
 
 ## Process — draft mode
 
@@ -113,7 +113,7 @@ Do NOT pass the conversation history. Give the agent this prompt body:
 > 3. The audience context at `.prospero/audience.md`. The target reader is defined there; do not flag missing explanations for concepts that audience already knows. The Research Sources section lists where to verify claims.
 > 4. If a research file exists at `{research_path}`, read it to see what sources have already been found and check whether the draft actually uses them.
 >
-> Use the research sources listed in `.prospero/audience.md`'s Research Sources section, then broader web as needed. Verify any factual claims in the draft and check whether cited sources are real. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique.
+> Read `{research_path}` first (if it exists) before running any web searches. Interrogation, earlier critique passes, and authoring have already persisted research there; your first job is to evaluate whether the draft's claims are adequately supported by research already on file, not to re-derive that work. Only run new web searches for specific gaps: an unsupported claim no source in `research.md` addresses, or a cited source you need to verify is real. When you do search, use the sources listed in `.prospero/audience.md`'s Research Sources section first, then broader web. If the audience file has no Research Sources section, fall back to broader web search and note the absence at the top of your critique.
 >
 > Evaluate on these five criteria:
 >
@@ -125,7 +125,7 @@ Do NOT pass the conversation history. Give the agent this prompt body:
 >
 > For each criterion, give a rating (strong / adequate / weak) and a specific note. End with a summary judgment and a prioritized list of revisions.
 >
-> Write your research findings to `{research_path}`. If the file exists, append under a dated section header like `## Critique session YYYY-MM-DD`; do not overwrite existing content. Create the file if missing.
+> Append any new research findings to `{research_path}` under a section header like `## Critique session YYYY-MM-DDTHH:MM` (local time, to the minute, so multiple same-day passes do not collide). Do not overwrite existing content. Create the file if missing. If the draft's claims were already covered by research on file and you did no new searches, say so under the header rather than leaving it empty.
 
 ## Presenting findings
 
@@ -141,3 +141,5 @@ Do not argue with the author's decision. The critic is advisory.
 
 - After outline-mode review, when the author is satisfied, invoke `/author` to draft the post.
 - After draft-mode review, return findings to the author for revision. Do NOT auto-invoke `/revise`; the author decides whether to revise, dismiss, or re-critique after their own edits.
+
+Multiple draft-mode critique passes are expected and encouraged. A draft typically goes through several rounds of `/critique` → author edits → `/critique` before it's ready to publish; each pass tends to surface different issues as the obvious problems get resolved. Treat a second or third `/critique` invocation on the same draft as the normal case, not an exception. Each pass appends a new dated section to `<drafts_dir>/<slug>/research.md` rather than overwriting — the history is the point.
