@@ -22,7 +22,7 @@ Each phase is its own slash command; a router skill (`prospero`) picks the right
 Install as a Claude Code plugin from the marketplace:
 
 ```
-/plugin install prospero
+/plugin install bguthrie/prospero
 ```
 
 Or install from this repository directly if you are developing against it.
